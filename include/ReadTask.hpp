@@ -5,7 +5,7 @@
 
 namespace http {
 
-class ReadTask : protected Task {
+class ReadTask : public Task {
  public:
   // TODO Implement
  private:

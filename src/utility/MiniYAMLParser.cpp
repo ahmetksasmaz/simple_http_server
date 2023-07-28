@@ -102,3 +102,8 @@ template <>
 double utility::YAMLNode::as<double>() {
   return stod(node_value_);
 }
+
+template <>
+bool utility::YAMLNode::as<bool>() {
+  return node_value_ == "true";
+}

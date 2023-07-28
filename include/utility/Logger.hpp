@@ -18,6 +18,11 @@ class Logger {
   void Debug(const std::string message) const;
   std::string GetName() const;
 
+  static bool info_enabled_;
+  static bool error_enabled_;
+  static bool warn_enabled_;
+  static bool debug_enabled_;
+
  private:
   void Print(const std::string log_type, const std::string message) const;
   std::string logger_name_;

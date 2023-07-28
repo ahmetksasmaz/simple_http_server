@@ -1,7 +1,14 @@
 # Server parameters
 ip_addr: 127.0.0.1
-port: 80
+port: 8080
 # Concurrency parameters
+maximum_connections: 10240
+event_fds: 10240
 read_workers: 5
 process_workers: 5
 write_workers: 5
+# Logger parameters
+info: true
+error: true
+warn: true
+debug: true

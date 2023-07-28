@@ -5,7 +5,7 @@
 
 namespace http {
 
-class ProcessTask : protected Task {
+class ProcessTask : public Task {
  public:
   // TODO Implement
  private:

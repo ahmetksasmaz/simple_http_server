@@ -8,8 +8,7 @@ file(GLOB SOURCES "src/*" "src/utility/*")
 
 add_executable(simple_http_server ${SOURCES})
 
-# Optionally, you can include additional source files like this:
-# add_executable(simple_http_server main.cpp additional_file.cpp)
+target_compile_options(simple_http_server PRIVATE -g)
 
 target_include_directories(simple_http_server PRIVATE include)
 

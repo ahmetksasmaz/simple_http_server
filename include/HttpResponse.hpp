@@ -5,7 +5,7 @@
 
 namespace http {
 
-class HttpResponse : protected HttpMessage {
+class HttpResponse : public HttpMessage {
  public:
   // TODO : hem base class'ta hem de derived class ta protocol tanımladım ve
   // default değer verdim, bunu nasıl daha güzel yaparım
