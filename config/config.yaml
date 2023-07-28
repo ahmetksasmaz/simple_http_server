@@ -2,4 +2,6 @@
 ip_addr: 127.0.0.1
 port: 80
 # Concurrency parameters
-max_worker_threads: 20
+read_workers: 5
+process_workers: 5
+write_workers: 5
