@@ -13,7 +13,7 @@ namespace utility {
 class YAMLNode {
  public:
   YAMLNode(const std::string node_value);
-  // Because Logger class doesn't have dynamically allocated memory
+  // Because YAMLNode class doesn't have dynamically allocated memory
   // No need user defined copy / move constructors and assignment operators
   // We can use default ones, destructor included
   template <typename T>

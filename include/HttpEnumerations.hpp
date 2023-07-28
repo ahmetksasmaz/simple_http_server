@@ -1,0 +1,127 @@
+#ifndef HTTP_ENUMERATIONS_H_
+#define HTTP_ENUMERATIONS_H_
+
+namespace http {
+
+namespace protocols {
+
+enum Protocol { HTTP_1_1, NOT_SUPPORTED };
+
+}  // namespace protocols
+
+namespace headers {
+
+enum Header {
+  // General Headers
+  CACHE_CONTROL,
+  CONNECTION,
+  DATE,
+  FORWARDED,
+  KEEP_ALIVE,
+  MIME_VERSION,
+  PRAGMA,
+  UPGRADE,
+  // Request Headers
+  ACCEPT,
+  ACCEPT_CHARSET,
+  ACCEPT_ENCODING,
+  ACCEPT_LANGUAGE,
+  AUTHORIZATION,
+  FROM,
+  HOST,
+  IF_MODIFIED_SINCE,
+  PROXY_AUTHORIZATION,
+  RANGE,
+  REFERER,
+  UNLESS,
+  USER_AGENT,
+  // Response Headers
+  LOCATION,
+  PROXY_AUTHENTICATE,
+  PUBLIC,
+  RETRY_AFTER,
+  SERVER,
+  WWW_AUTHENTICATE,
+  // Entity Headers
+  ALLOW,
+  CONTENT_ENCODING,
+  CONTENT_LANGUAGE,
+  CONTENT_LENGTH,
+  CONTENT_MD5,
+  CONTENT_RANGE,
+  CONTENT_TYPE,
+  CONTENT_VERSION,
+  DERIVED_FROM,
+  EXPIRES,
+  LAST_MODIFIED,
+  LINK,
+  TITLE,
+  TRANSFER_ENCODING,
+  URI_HEADER
+};
+
+}  // namespace headers
+
+namespace methods {
+
+enum Method {
+  OPTIONS,
+  GET,
+  HEAD,
+  POST,
+  PUT,
+  PATCH,
+  COPY,
+  MOVE,
+  DELETE,
+  LINK,
+  UNLINK,
+  TRACE,
+  WRAPPED
+};
+
+}  // namespace methods
+
+namespace status_codes {
+
+enum StatusCode {
+  CONTINUE = 100,
+  SWITCHING_PROTOCOLS = 101,
+  OK = 200,
+  CREATED = 201,
+  ACCEPTED = 202,
+  NON_AUTHORITATIVE_INFORMATION = 203,
+  NO_CONTENT = 204,
+  RESET_CONTENT = 205,
+  PARTIAL_CONTENT = 206,
+  MULTIPLE_CHOICES = 300,
+  MOVED_PERMANENTLY = 301,
+  MOVED_TEMPORARILY = 302,
+  SEE_OTHER = 303,
+  NOT_MODIFIED = 304,
+  USE_PROXY = 305,
+  BAD_REQUEST = 400,
+  UNAUTHORIZED = 401,
+  PAYMENT_REQUIRED = 402,
+  FORBIDDEN = 403,
+  NOT_FOUND = 404,
+  METHOD_NOT_ALLOWED = 405,
+  NONE_ACCEPTABLE = 406,
+  PROXY_AUTHENTICATION_REQUIRED = 407,
+  REQUEST_TIMEOUT = 408,
+  CONFLICT = 409,
+  GONE = 410,
+  LENGTH_REQUIRED = 411,
+  UNLESS_TRUE = 412,
+  INTERNAL_SERVER_ERROR = 500,
+  NOT_IMPLEMENTED = 501,
+  BAD_GATEWAY = 502,
+  SERVICE_UNAVAILABLE = 503,
+  GATEWAY_TIMEOUT = 504
+};
+
+}  // namespace status_codes
+
+}  // namespace http
+
+#endif
