@@ -19,10 +19,10 @@ int main(int argc, char** argv) {
   const int process_workers = yaml_parser["process_workers"].as<int>();
   const int write_workers = yaml_parser["write_workers"].as<int>();
 
-  bool info_enabled = yaml_parser["info"].as<bool>();
-  bool error_enabled = yaml_parser["error"].as<bool>();
-  bool warn_enabled = yaml_parser["warn"].as<bool>();
-  bool debug_enabled = yaml_parser["debug"].as<bool>();
+  const bool info_enabled = yaml_parser["info"].as<bool>();
+  const bool error_enabled = yaml_parser["error"].as<bool>();
+  const bool warn_enabled = yaml_parser["warn"].as<bool>();
+  const bool debug_enabled = yaml_parser["debug"].as<bool>();
 
   utility::Logger::info_enabled_ = info_enabled;
   utility::Logger::error_enabled_ = error_enabled;
