@@ -18,7 +18,7 @@ void http::ProcessWorker::Runner() {
     std::string request_str =
         request_datas_.get()->FindAndRemove(process_task.client_fd_);
     // TODO Implement
-    // HttpRequest request = HttpRequest::Parse(process_task.data_);
+    HttpRequest request = HttpRequest::Parse(request_str);
     // Handle
     // HttpResponse response();
     // response.Stringify();

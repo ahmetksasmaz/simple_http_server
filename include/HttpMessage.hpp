@@ -1,8 +1,10 @@
 #ifndef HTTP_MESSAGE_H_
 #define HTTP_MESSAGE_H_
 
+#include <algorithm>
 #include <iostream>
 #include <map>
+#include <sstream>
 
 #include "HttpEnumerations.hpp"
 
