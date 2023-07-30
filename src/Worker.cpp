@@ -1,6 +1,18 @@
-// TODO Implement
 
 #include "Worker.hpp"
+
+http::Worker::Worker(utility::Logger logger) : logger_(logger) {}
+
+http::Worker::Worker(http::Worker& worker) : logger_(worker.logger_) {}
+
+http::Worker::Worker(http::Worker&& worker) : logger_(worker.logger_) {
+  if (this != &worker) {
+  }
+}
+
+http::Worker& http::Worker::operator=(http::Worker& worker) {}
+
+http::Worker& http::Worker::operator=(http::Worker&& worker) {}
 
 http::Worker::~Worker() { Stop(); }
 

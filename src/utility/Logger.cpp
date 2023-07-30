@@ -12,7 +12,6 @@ void utility::Logger::Print(const std::string log_type,
                             const std::string message) const {
   std::ostringstream ss;
   ss << "[" << logger_name_ << "][" << log_type << "] : " << message;
-  std::cout << ss.str() << std::endl;
 }
 
 void utility::Logger::Info(const std::string message) const {

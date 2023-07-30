@@ -1,8 +1,6 @@
 #include "ProtectedQueue.hpp"
 
-#include "ProcessTask.hpp"
-#include "ReadTask.hpp"
-#include "WriteTask.hpp"
+#include "EventPollWorker.hpp"
 
 template <typename T>
 http::ProtectedQueue<T>::ProtectedQueue() {}
@@ -17,7 +15,7 @@ http::ProtectedQueue<T>::ProtectedQueue(
     }
     protected_queue.mutex_.lock();
     while (protected_queue.queue_.size()) {
-      T element = std::move(protected_queue.queue_.front());
+      T element = protected_queue.queue_.front();
       protected_queue.queue_.pop();
       queue_.push(element);
     }
@@ -36,7 +34,7 @@ http::ProtectedQueue<T>& http::ProtectedQueue<T>::operator=(
     }
     protected_queue.mutex_.lock();
     while (protected_queue.queue_.size()) {
-      T element = std::move(protected_queue.queue_.front());
+      T element = protected_queue.queue_.front();
       protected_queue.queue_.pop();
       queue_.push(element);
     }
@@ -74,6 +72,4 @@ T http::ProtectedQueue<T>::Pop() {
   return element;
 }
 
-template class http::ProtectedQueue<std::shared_ptr<http::ReadTask>>;
-template class http::ProtectedQueue<std::shared_ptr<http::ProcessTask>>;
-template class http::ProtectedQueue<std::shared_ptr<http::WriteTask>>;
+template class http::ProtectedQueue<http::TaskDescription>;

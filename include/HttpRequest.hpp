@@ -7,8 +7,6 @@ namespace http {
 
 class HttpRequest : public HttpMessage {
  public:
-  // TODO : hem base class'ta hem de derived class ta protocol tanımladım ve
-  // default değer verdim, bunu nasıl daha güzel yaparım
   HttpRequest(const methods::Method method, const std::string request_uri,
               const protocols::Protocol protocol = protocols::HTTP_1_1);
   // Because HttpRequest class doesn't have dynamically allocated memory

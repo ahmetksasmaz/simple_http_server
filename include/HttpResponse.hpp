@@ -1,5 +1,5 @@
-#ifndef HTTP_REQUEST_H_
-#define HTTP_REQUEST_H_
+#ifndef HTTP_RESPONSE_H_
+#define HTTP_RESPONSE_H_
 
 #include "HttpMessage.hpp"
 
@@ -7,8 +7,6 @@ namespace http {
 
 class HttpResponse : public HttpMessage {
  public:
-  // TODO : hem base class'ta hem de derived class ta protocol tanımladım ve
-  // default değer verdim, bunu nasıl daha güzel yaparım
   HttpResponse(const status_codes::StatusCode status_code,
                const protocols::Protocol protocol = protocols::HTTP_1_1);
   // Because HttpResponse class doesn't have dynamically allocated memory

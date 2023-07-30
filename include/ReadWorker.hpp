@@ -1,22 +1,31 @@
 #ifndef READ_WORKER_H_
 #define READ_WORKER_H_
 
-#include "ProcessTask.hpp"
-#include "ReadTask.hpp"
+#include <cstring>
+#include <iostream>
+#include <string>
+
+#include "ProtectedUnorderedMap.hpp"
+#include "TaskDescription.hpp"
 #include "Worker.hpp"
 
 namespace http {
 
 class ReadWorker : public Worker {
  public:
-  // TODO Implement
+  ReadWorker(
+      std::shared_ptr<ProtectedQueue<TaskDescription>> reader_queue,
+      std::shared_ptr<ProtectedQueue<TaskDescription>> processor_queue,
+      std::shared_ptr<ProtectedUnorderedMap<int, std::string>> read_datas);
+
  private:
-  // TODO Implement
   void Runner();
-  std::shared_ptr<ProtectedQueue<std::shared_ptr<ReadTask>>> reader_queue_ =
+  std::shared_ptr<ProtectedQueue<TaskDescription>> reader_queue_ = nullptr;
+  std::shared_ptr<ProtectedQueue<TaskDescription>> processor_queue_ = nullptr;
+  std::shared_ptr<ProtectedUnorderedMap<int, std::string>> request_datas_ =
       nullptr;
-  std::shared_ptr<ProtectedQueue<std::shared_ptr<ProcessTask>>>
-      processor_queue_ = nullptr;
+  static const int buffer_size_ = 4096;
+  char buffer_[buffer_size_];
 };
 
 }  // namespace http

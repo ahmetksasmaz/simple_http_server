@@ -8,7 +8,7 @@ file(GLOB SOURCES "src/*" "src/utility/*")
 
 add_executable(simple_http_server ${SOURCES})
 
-target_compile_options(simple_http_server PRIVATE -g)
+target_compile_options(simple_http_server PRIVATE -O3)
 
 target_include_directories(simple_http_server PRIVATE include)
 

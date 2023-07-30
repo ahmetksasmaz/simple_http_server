@@ -1,14 +1,16 @@
 #include "HttpServer.hpp"
 
 http::HttpServer::HttpServer(const std::string ip_addr, const int port,
-                             const int maximum_connections, const int event_fds,
+                             const int maximum_connections,
+                             const int maximum_events, const int event_poll_num,
                              const int read_worker_num,
                              const int process_worker_num,
                              const int write_worker_num)
     : ip_addr_(ip_addr),
       port_(port),
       maximum_connections_(maximum_connections),
-      event_fds_(event_fds),
+      maximum_events_(maximum_events),
+      event_poll_num_(event_poll_num),
       read_worker_num_(read_worker_num),
       process_worker_num_(process_worker_num),
       write_worker_num_(write_worker_num),
@@ -19,39 +21,48 @@ http::HttpServer::HttpServer(const std::string ip_addr, const int port,
   logger_.Debug("Port:" + std::to_string(port_));
   logger_.Debug("# Of Maximum Connections Listened:" +
                 std::to_string(maximum_connections_));
-  logger_.Debug("# Of  Event Pool File Descriptors:" +
-                std::to_string(event_fds_));
+  logger_.Debug("# Of Maximum Events:" + std::to_string(maximum_events_));
   logger_.Debug("# Of Read Workers:" + std::to_string(read_worker_num_));
   logger_.Debug("# Of Processs Workers:" + std::to_string(process_worker_num_));
   logger_.Debug("# Of Write Workers:" + std::to_string(write_worker_num_));
   logger_.Debug("-----------------------");
 
-  reader_queue_ = std::make_shared<ProtectedQueue<std::shared_ptr<ReadTask>>>();
+  reader_queue_ = std::make_shared<ProtectedQueue<TaskDescription>>();
   logger_.Debug("Reader queue created.");
 
-  processor_queue_ =
-      std::make_shared<ProtectedQueue<std::shared_ptr<ProcessTask>>>();
+  processor_queue_ = std::make_shared<ProtectedQueue<TaskDescription>>();
   logger_.Debug("Processor queue created.");
 
-  writer_queue_ =
-      std::make_shared<ProtectedQueue<std::shared_ptr<WriteTask>>>();
+  writer_queue_ = std::make_shared<ProtectedQueue<TaskDescription>>();
   logger_.Debug("Writer queue created.");
 
-  event_pool_worker_ = std::make_unique<EventPoolWorker>();
-  logger_.Debug("Event pool worker created.");
+  request_datas_ = std::make_shared<ProtectedUnorderedMap<int, std::string>>();
+  logger_.Debug("Request data unordered map created.");
+
+  response_datas_ = std::make_shared<ProtectedUnorderedMap<int, std::string>>();
+  logger_.Debug("Response data unordered map created.");
+
+  for (int i = 0; i < event_poll_num_; i++) {
+    event_poll_workers_.push_back(std::make_unique<EventPollWorker>(
+        maximum_events_, reader_queue_, writer_queue_));
+  }
+  logger_.Debug("Event poll workers created.");
 
   for (int i = 0; i < read_worker_num_; i++) {
-    reader_workers_.push_back(std::make_unique<ReadWorker>());
+    reader_workers_.push_back(std::make_unique<ReadWorker>(
+        reader_queue_, processor_queue_, request_datas_));
   }
   logger_.Debug("Read workers created.");
 
   for (int i = 0; i < process_worker_num_; i++) {
-    processor_workers_.push_back(std::make_unique<ProcessWorker>());
+    processor_workers_.push_back(std::make_unique<ProcessWorker>(
+        processor_queue_, writer_queue_, request_datas_, response_datas_));
   }
   logger_.Debug("Processor workers created.");
 
   for (int i = 0; i < write_worker_num_; i++) {
-    writer_workers_.push_back(std::make_unique<WriteWorker>());
+    writer_workers_.push_back(
+        std::make_unique<WriteWorker>(writer_queue_, response_datas_));
   }
   logger_.Debug("Writer workers created.");
 
@@ -62,19 +73,21 @@ http::HttpServer::HttpServer(http::HttpServer&& server)
     : ip_addr_(server.ip_addr_),
       port_(server.port_),
       maximum_connections_(server.maximum_connections_),
-      event_fds_(server.event_fds_),
+      maximum_events_(server.maximum_events_),
       read_worker_num_(server.read_worker_num_),
       process_worker_num_(server.process_worker_num_),
       write_worker_num_(server.write_worker_num_),
       logger_(server.logger_) {
   if (this != &server) {
-    event_pool_worker_ = std::move(server.event_pool_worker_);
     reader_queue_ = std::move(server.reader_queue_);
     processor_queue_ = std::move(server.processor_queue_);
     writer_queue_ = std::move(server.writer_queue_);
     reader_workers_.clear();
     processor_workers_.clear();
     writer_workers_.clear();
+    for (auto& event_poll_worker : server.event_poll_workers_) {
+      event_poll_workers_.push_back(std::move(event_poll_worker));
+    }
     for (auto& reader_worker : server.reader_workers_) {
       reader_workers_.push_back(std::move(reader_worker));
     }
@@ -92,18 +105,20 @@ http::HttpServer& http::HttpServer::operator=(http::HttpServer&& server) {
     ip_addr_ = server.ip_addr_;
     port_ = server.port_;
     maximum_connections_ = server.maximum_connections_;
-    event_fds_ = server.event_fds_;
+    maximum_events_ = server.maximum_events_;
     read_worker_num_ = server.read_worker_num_;
     process_worker_num_ = server.process_worker_num_;
     write_worker_num_ = server.write_worker_num_;
     logger_ = server.logger_;
-    event_pool_worker_ = std::move(server.event_pool_worker_);
     reader_queue_ = std::move(server.reader_queue_);
     processor_queue_ = std::move(server.processor_queue_);
     writer_queue_ = std::move(server.writer_queue_);
     reader_workers_.clear();
     processor_workers_.clear();
     writer_workers_.clear();
+    for (auto& event_poll_worker : server.event_poll_workers_) {
+      event_poll_workers_.push_back(std::move(event_poll_worker));
+    }
     for (auto& reader_worker : server.reader_workers_) {
       reader_workers_.push_back(std::move(reader_worker));
     }
@@ -167,15 +182,22 @@ void http::HttpServer::Start() {
   }
 
   logger_.Debug("Socket is listening.");
+
+  int flags = fcntl(socket_fd_, F_GETFL, 0);
+  fcntl(socket_fd_, F_SETFL, flags | O_NONBLOCK);
+
+  logger_.Debug("Socket set to non blocking mode.");
+
   logger_.Info("Server listening on: " + ip_addr_ + ":" +
                std::to_string(port_));
 
-  // TODO Set event pool server socket
+  // Start event poll workers
 
-  // Start event pool
-  event_pool_worker_->Start();
+  for (auto& event_poll_worker : event_poll_workers_) {
+    event_poll_worker->Start();
+  }
 
-  logger_.Debug("Event pool started.");
+  logger_.Debug("Event poll workers started.");
 
   // Start workers
   for (auto& reader_worker : reader_workers_) {
@@ -190,11 +212,15 @@ void http::HttpServer::Start() {
     writer_worker->Start();
   }
   logger_.Debug("Writer workers started.");
+
+  thread_ = std::make_unique<std::thread>(&http::HttpServer::Runner, this);
 }
 void http::HttpServer::Stop() {
-  // Wait for event pool stop
-  event_pool_worker_->Stop();
-  logger_.Debug("Event pool worker stopped.");
+  // Wait for event poll workers stop
+  for (auto& event_poll_worker : event_poll_workers_) {
+    event_poll_worker->Stop();
+  }
+  logger_.Debug("Event poll workers stopped.");
 
   // Wait for workers stop
   for (auto& reader_worker : reader_workers_) {
@@ -212,7 +238,40 @@ void http::HttpServer::Stop() {
   }
   logger_.Debug("Writer workers stopped.");
 
+  running_ = false;
+  if (thread_ != nullptr) {
+    if (thread_->joinable()) {
+      thread_->join();
+    }
+  }
+
   // Close server socket
   close(socket_fd_);
   logger_.Debug("Socket closed.");
+}
+
+void http::HttpServer::Runner() {
+  running_ = true;
+  int event_poll_counter = 0;
+  while (running_) {
+    sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof(client_addr);
+    int client_fd =
+        accept(socket_fd_, (sockaddr*)&client_addr, &client_addr_len);
+    logger_.Info("Client accepted " +
+                 std::string{inet_ntoa(client_addr.sin_addr)} + ":" +
+                 std::to_string(client_addr.sin_port));
+    int flags = fcntl(client_fd, F_GETFL, 0);
+    fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+    logger_.Debug("Client socket set to non blocking mode : " +
+                  std::to_string(client_fd));
+
+    epoll_event new_event;
+    new_event.events = EPOLLIN | EPOLLET;
+    new_event.data.fd = client_fd;
+    epoll_ctl(event_poll_workers_[event_poll_counter]->GetEventPollSocket(),
+              EPOLL_CTL_ADD, client_fd, &new_event);
+    event_poll_counter = ++event_poll_counter % event_poll_num_;
+    logger_.Debug("Client socket is added to interest list.");
+  }
 }

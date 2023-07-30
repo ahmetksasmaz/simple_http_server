@@ -1,3 +1,5 @@
+#include <csignal>
+
 #include "HttpServer.hpp"
 #include "utility/Logger.hpp"
 #include "utility/MiniYAMLParser.hpp"
@@ -14,7 +16,8 @@ int main(int argc, char** argv) {
   const std::string ip_addr = yaml_parser["ip_addr"].as<std::string>();
   const int port = yaml_parser["port"].as<int>();
   const int maximum_connections = yaml_parser["maximum_connections"].as<int>();
-  const int event_fds = yaml_parser["event_fds"].as<int>();
+  const int maximum_events = yaml_parser["maximum_events"].as<int>();
+  const int event_polls = yaml_parser["event_polls"].as<int>();
   const int read_workers = yaml_parser["read_workers"].as<int>();
   const int process_workers = yaml_parser["process_workers"].as<int>();
   const int write_workers = yaml_parser["write_workers"].as<int>();
@@ -29,8 +32,11 @@ int main(int argc, char** argv) {
   utility::Logger::warn_enabled_ = warn_enabled;
   utility::Logger::debug_enabled_ = debug_enabled;
 
-  http::HttpServer http_server(ip_addr, port, maximum_connections, event_fds,
-                               read_workers, process_workers, write_workers);
+  logger.Debug("Configuration parameters loaded.");
+
+  http::HttpServer http_server(ip_addr, port, maximum_connections,
+                               maximum_events, event_polls, read_workers,
+                               process_workers, write_workers);
 
   while (true) {
     // TODO User interaction
