@@ -10,6 +10,10 @@ namespace protocols {
 
 enum Protocol { HTTP_1_1, NOT_SUPPORTED };
 
+static std::string ProtocolToText(Protocol protocol) {
+  return protocol == Protocol::HTTP_1_1 ? "HTTP/1.1" : "";
+}
+
 }  // namespace protocols
 
 namespace headers {
@@ -62,6 +66,59 @@ enum Header {
   TRANSFER_ENCODING,
   URI_HEADER
 };
+
+static const std::unordered_map<Header, std::string> header_texts = {
+    // General Headers
+    {Header::CACHE_CONTROL, "Cache-Control"},
+    {Header::CONNECTION, "Connection"},
+    {Header::DATE, "Date"},
+    {Header::FORWARDED, "Forwarded"},
+    {Header::KEEP_ALIVE, "Keep-Alive"},
+    {Header::MIME_VERSION, "Mime-Version"},
+    {Header::PRAGMA, "Pragma"},
+    {Header::UPGRADE, "Upgrade"},
+    // Request Headers
+    {Header::ACCEPT, "Accept"},
+    {Header::ACCEPT_CHARSET, "Accept-Charset"},
+    {Header::ACCEPT_ENCODING, "Accept-Encoding"},
+    {Header::ACCEPT_LANGUAGE, "Accept-Language"},
+    {Header::AUTHORIZATION, "Authorization"},
+    {Header::FROM, "From"},
+    {Header::HOST, "Host"},
+    {Header::IF_MODIFIED_SINCE, "If-Modified-Since"},
+    {Header::PROXY_AUTHORIZATION, "Proxy-Authorization"},
+    {Header::RANGE, "Range"},
+    {Header::REFERER, "Referer"},
+    {Header::UNLESS, "Unless"},
+    {Header::USER_AGENT, "User-Agent"},
+    // Response Headers
+    {Header::LOCATION, "Location"},
+    {Header::PROXY_AUTHENTICATE, "Proxy-Authenticate"},
+    {Header::PUBLIC, "Public"},
+    {Header::RETRY_AFTER, "Retry-After"},
+    {Header::SERVER, "Server"},
+    {Header::WWW_AUTHENTICATE, "WWW-Authenticate"},
+    // Entity Headers
+    {Header::ALLOW, "Allow"},
+    {Header::CONTENT_ENCODING, "Content-Encoding"},
+    {Header::CONTENT_LANGUAGE, "Content-Language"},
+    {Header::CONTENT_LENGTH, "Content-Length"},
+    {Header::CONTENT_MD5, "Content-MD5"},
+    {Header::CONTENT_RANGE, "Content-Range"},
+    {Header::CONTENT_TYPE, "Content-Type"},
+    {Header::CONTENT_VERSION, "Content-Version"},
+    {Header::DERIVED_FROM, "Derived-From"},
+    {Header::EXPIRES, "Expires"},
+    {Header::LAST_MODIFIED, "Last-Modified"},
+    {Header::LINK, "Link"},
+    {Header::TITLE, "Title"},
+    {Header::TRANSFER_ENCODING, "Transfer-Encoding"},
+    {Header::URI_HEADER, "URI-Header"},
+};
+
+static std::string HeaderToText(Header header) {
+  return header_texts.at(header);
+}
 
 enum HeaderState {
   START,
@@ -132,7 +189,7 @@ enum HeaderState {
   END_NOT_SUPPORTED
 };
 
-static std::map<std::pair<HeaderState, char>, std::pair<HeaderState, int>>
+static const std::map<std::pair<HeaderState, char>, std::pair<HeaderState, int>>
     header_state_tree = {
         {{HeaderState::START, 'A'}, {HeaderState::MIDDLE_A, 1}},
         {{HeaderState::MIDDLE_A, 'C'}, {HeaderState::MIDDLE_ACCEPT, 5}},
@@ -267,7 +324,7 @@ enum MethodState {
   END_NOT_SUPPORTED
 };
 
-static std::map<std::pair<MethodState, char>, std::pair<MethodState, int>>
+static const std::map<std::pair<MethodState, char>, std::pair<MethodState, int>>
     method_state_tree = {
         {{MethodState::START, 'O'}, {MethodState::END_OPTIONS, 0}},
         {{MethodState::START, 'G'}, {MethodState::END_GET, 0}},
@@ -339,6 +396,48 @@ enum StatusCode {
   SERVICE_UNAVAILABLE = 503,
   GATEWAY_TIMEOUT = 504
 };
+
+static const std::unordered_map<StatusCode, std::string> status_code_texts = {
+    {StatusCode::CONTINUE, "Continue"},
+    {StatusCode::SWITCHING_PROTOCOLS, "Switching Protocols"},
+    {StatusCode::OK, "OK"},
+    {StatusCode::CREATED, "Created"},
+    {StatusCode::ACCEPTED, "Accepted"},
+    {StatusCode::NON_AUTHORITATIVE_INFORMATION,
+     "Non-Authoritative Information"},
+    {StatusCode::NO_CONTENT, "No Content"},
+    {StatusCode::RESET_CONTENT, "Reset Content"},
+    {StatusCode::PARTIAL_CONTENT, "Partial Content"},
+    {StatusCode::MULTIPLE_CHOICES, "Multiple Choices"},
+    {StatusCode::MOVED_PERMANENTLY, "Moved Permanently"},
+    {StatusCode::MOVED_TEMPORARILY, "Moved Temporarily"},
+    {StatusCode::SEE_OTHER, "See Other"},
+    {StatusCode::NOT_MODIFIED, "Not Modified"},
+    {StatusCode::USE_PROXY, "Use Proxy"},
+    {StatusCode::BAD_REQUEST, "Bad Request"},
+    {StatusCode::UNAUTHORIZED, "Unauthorized"},
+    {StatusCode::PAYMENT_REQUIRED, "Payment Required"},
+    {StatusCode::FORBIDDEN, "Forbidden"},
+    {StatusCode::NOT_FOUND, "Not Found"},
+    {StatusCode::METHOD_NOT_ALLOWED, "Method Not Allowed"},
+    {StatusCode::NONE_ACCEPTABLE, "None Acceptable"},
+    {StatusCode::PROXY_AUTHENTICATION_REQUIRED,
+     "Proxy Authentication Required"},
+    {StatusCode::REQUEST_TIMEOUT, "Request Timeout"},
+    {StatusCode::CONFLICT, "Conflict"},
+    {StatusCode::GONE, "Gone"},
+    {StatusCode::LENGTH_REQUIRED, "Length Required"},
+    {StatusCode::UNLESS_TRUE, "Unless True"},
+    {StatusCode::INTERNAL_SERVER_ERROR, "Internal Server Error"},
+    {StatusCode::NOT_IMPLEMENTED, "Not Implemented"},
+    {StatusCode::BAD_GATEWAY, "Bad Gateway"},
+    {StatusCode::SERVICE_UNAVAILABLE, "Service Unavailable"},
+    {StatusCode::GATEWAY_TIMEOUT, "Gateway Timeout"},
+};
+
+static std::string StatusCodeToText(StatusCode status_code) {
+  return status_code_texts.at(status_code);
+}
 
 }  // namespace status_codes
 

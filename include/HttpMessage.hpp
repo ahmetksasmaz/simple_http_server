@@ -19,6 +19,12 @@ class HttpMessage {
   HttpMessage& operator=(HttpMessage&& message);
   virtual ~HttpMessage();
 
+  protocols::Protocol GetProtocol();
+  std::string GetHeader(headers::Header header);
+  std::string GetEntityBody();
+  void AddHeader(headers::Header header, std::string value);
+  void SetEntityBody(std::string entity_body);
+
  protected:
   protocols::Protocol protocol_;
   // By using std::map, we enforce headers to be sorted in practically

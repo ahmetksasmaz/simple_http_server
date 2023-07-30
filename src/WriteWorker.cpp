@@ -11,7 +11,6 @@ http::WriteWorker::WriteWorker(
 
 void http::WriteWorker::Runner() {
   running_ = true;
-  int counter = 0;
   while (running_) {
     TaskDescription write_task = writer_queue_.get()->Pop();
     logger_.Debug("Writing response to socket : " +

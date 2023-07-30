@@ -14,6 +14,9 @@ class HttpRequest : public HttpMessage {
   // We can use default ones, destructor included
   static HttpRequest& Parse(const std::string message);
 
+  methods::Method GetMethod();
+  std::string GetRequestURI();
+
  private:
   const methods::Method method_;
   const std::string request_uri_;

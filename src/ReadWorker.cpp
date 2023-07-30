@@ -11,7 +11,6 @@ http::ReadWorker::ReadWorker(
 
 void http::ReadWorker::Runner() {
   running_ = true;
-  int counter = 0;
   while (running_) {
     TaskDescription read_task = reader_queue_.get()->Pop();
 

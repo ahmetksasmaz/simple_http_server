@@ -54,3 +54,7 @@ http::HttpRequest& http::HttpRequest::Parse(const std::string message) {
 
   return request;
 }
+
+http::methods::Method http::HttpRequest::GetMethod() { return method_; }
+
+std::string http::HttpRequest::GetRequestURI() { return request_uri_; }

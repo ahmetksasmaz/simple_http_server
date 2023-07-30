@@ -12,7 +12,6 @@ http::ProcessWorker::ProcessWorker(
       Worker(utility::Logger("ProcessWorker")) {}
 void http::ProcessWorker::Runner() {
   running_ = true;
-  int counter = 0;
   while (running_) {
     TaskDescription process_task = processor_queue_.get()->Pop();
     std::string request_str =
@@ -20,24 +19,23 @@ void http::ProcessWorker::Runner() {
     // TODO Implement
     HttpRequest request = HttpRequest::Parse(request_str);
     // Handle
-    // HttpResponse response();
-    // response.Stringify();
+    HttpResponse dummy_response(status_codes::OK, protocols::HTTP_1_1);
 
-    // TODO Remove this section
+    dummy_response.AddHeader(headers::CONTENT_TYPE, "text/html");
+    dummy_response.AddHeader(headers::SERVER, "Simple-Http-Server");
+    dummy_response.AddHeader(headers::DATE, HttpResponse::UTCDate());
 
-    std::string response_str = "HTTP/1.1 200 OK\n";
-    response_str += "Date: Mon, 27 Jul 2009 12:28:53 GMT\n";
-    response_str += "Server: Apache/2.2.14 (Win32)\n";
-    response_str += "Last-Modified: Wed, 22 Jul 2009 19:15:56 GMT\n";
-    response_str += "Content-Length: 60\n";
-    response_str += "Content-Type: text/html\n";
-    response_str += "Connection: Closed\r\n\r\n";
-    response_str += "<html>\n";
-    response_str += "<body>\n";
-    response_str += "<h1>Hello,World!" + std::to_string(counter++) + "</h1>\n";
-    response_str += "</body>\n";
-    response_str += "</html>\n\n\n\n\n\n\n\n\n\n";
-    // TODO Remove this section
+    std::string entity_body = "";
+    entity_body += "<html>\n";
+    entity_body += "<body>\n";
+    entity_body +=
+        "<h1>Hello there! Time as UTC : " + HttpResponse::UTCDate() + "</h1>\n";
+    entity_body += "</body>\n";
+    entity_body += "</html>";
+
+    dummy_response.SetEntityBody(entity_body);
+
+    std::string response_str = dummy_response.Stringify();
 
     response_datas_.get()->Push(
         std::pair<int, std::string>(process_task.client_fd_, response_str));
