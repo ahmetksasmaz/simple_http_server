@@ -12,7 +12,7 @@ class HttpRequest : public HttpMessage {
   // Because HttpRequest class doesn't have dynamically allocated memory
   // No need user defined copy / move constructors and assignment operators
   // We can use default ones, destructor included
-  static HttpRequest& Parse(const std::string message);
+  static HttpRequest* Parse(const std::string message);
 
   methods::Method GetMethod();
   std::string GetRequestURI();

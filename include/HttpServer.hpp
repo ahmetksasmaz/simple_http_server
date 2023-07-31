@@ -11,6 +11,7 @@
 #include <string>
 
 #include "EventPollWorker.hpp"
+#include "HttpRouter.hpp"
 #include "ProcessWorker.hpp"
 #include "ProtectedQueue.hpp"
 #include "ProtectedUnorderedMap.hpp"
@@ -59,6 +60,7 @@ class HttpServer {
   std::vector<std::unique_ptr<ReadWorker>> reader_workers_;
   std::vector<std::unique_ptr<ProcessWorker>> processor_workers_;
   std::vector<std::unique_ptr<WriteWorker>> writer_workers_;
+  std::shared_ptr<HttpRouter> router_;
   std::unique_ptr<std::thread> thread_;
 };
 

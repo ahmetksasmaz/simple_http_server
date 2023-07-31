@@ -7,6 +7,7 @@
 
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
+#include "HttpRouter.hpp"
 #include "ProtectedUnorderedMap.hpp"
 #include "TaskDescription.hpp"
 #include "Worker.hpp"
@@ -18,6 +19,7 @@ class ProcessWorker : public Worker {
   ProcessWorker(
       std::shared_ptr<ProtectedQueue<TaskDescription>> processor_queue,
       std::shared_ptr<ProtectedQueue<TaskDescription>> writer_queue,
+      std::shared_ptr<HttpRouter> router,
       std::shared_ptr<ProtectedUnorderedMap<int, std::string>> request_datas,
       std::shared_ptr<ProtectedUnorderedMap<int, std::string>> response_datas);
 
@@ -25,6 +27,7 @@ class ProcessWorker : public Worker {
   void Runner();
   std::shared_ptr<ProtectedQueue<TaskDescription>> processor_queue_ = nullptr;
   std::shared_ptr<ProtectedQueue<TaskDescription>> writer_queue_ = nullptr;
+  std::shared_ptr<HttpRouter> router_ = nullptr;
   std::shared_ptr<ProtectedUnorderedMap<int, std::string>> request_datas_ =
       nullptr;
   std::shared_ptr<ProtectedUnorderedMap<int, std::string>> response_datas_ =

@@ -5,7 +5,6 @@ http::HttpResponse::HttpResponse(const status_codes::StatusCode status_code,
     : status_code_(status_code), http::HttpMessage::HttpMessage(protocol) {}
 
 std::string http::HttpResponse::Stringify() {
-  // TODO Implement
   std::string response_str = "";
 
   // Status Line
@@ -17,15 +16,18 @@ std::string http::HttpResponse::Stringify() {
   response_str += "\r\n";
 
   // Headers
-  try {
-    headers_.at(headers::CONTENT_LENGTH);
-  } catch (...) {
-    // Content length is not set
-    if (entity_body_.size()) {
+  if (status_code_ < 200 || status_code_ == 204 || status_code_ == 304) {
+    headers_.erase(headers::CONTENT_LENGTH);
+  } else {
+    try {
+      headers_.at(headers::CONTENT_LENGTH);
+    } catch (...) {
+      // Content length is not set
       headers_.insert(std::pair<headers::Header, std::string>(
           headers::CONTENT_LENGTH, std::to_string(entity_body_.size())));
     }
   }
+
   for (auto& header_pair : headers_) {
     headers::Header param = header_pair.first;
     std::string value = header_pair.second;
@@ -39,9 +41,9 @@ std::string http::HttpResponse::Stringify() {
     response_str += "\r\n";
   }
 
+  response_str += "\r\n";
   // Content
   if (entity_body_.size()) {
-    response_str += "\r\n";
     response_str += entity_body_;
   }
 

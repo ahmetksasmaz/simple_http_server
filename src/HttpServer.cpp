@@ -27,6 +27,45 @@ http::HttpServer::HttpServer(const std::string ip_addr, const int port,
   logger_.Debug("# Of Write Workers:" + std::to_string(write_worker_num_));
   logger_.Debug("-----------------------");
 
+  router_ = std::make_shared<HttpRouter>();
+  logger_.Debug("Router created.");
+
+  // Registering routes
+  router_.get()->RegisterRoute(
+      http::methods::GET, "/index.html",
+      [](http::HttpRequest request) -> http::HttpResponse {
+        std::ifstream file("../www/index.html");
+        HttpResponse response(http::status_codes::OK,
+                              http::protocols::HTTP_1_1);
+        response.AddHeader(headers::SERVER, "Simple-Http-Server");
+        response.AddHeader(headers::DATE, HttpResponse::UTCDate());
+
+        std::ostringstream ss;
+        ss << file.rdbuf();
+        response.SetEntityBody(ss.str());
+
+        return response;
+      });
+  router_.get()->RegisterRoute(
+      http::methods::POST, "/echo_content",
+      [](http::HttpRequest request) -> http::HttpResponse {
+        HttpResponse response(http::status_codes::OK,
+                              http::protocols::HTTP_1_1);
+        response.AddHeader(headers::SERVER, "Simple-Http-Server");
+        response.AddHeader(headers::DATE, HttpResponse::UTCDate());
+        std::string response_str = "<html>\n";
+        response_str += "<head></head>\n";
+        response_str += "<body>\n";
+        response_str += "<h1>\n";
+        response_str += "Echo : " + request.GetEntityBody() + "\n";
+        response_str += "</h1>\n";
+        response_str += "</body>\n";
+        response_str += "</html>\n";
+        response.SetEntityBody(response_str);
+
+        return response;
+      });
+
   reader_queue_ = std::make_shared<ProtectedQueue<TaskDescription>>();
   logger_.Debug("Reader queue created.");
 
@@ -56,7 +95,8 @@ http::HttpServer::HttpServer(const std::string ip_addr, const int port,
 
   for (int i = 0; i < process_worker_num_; i++) {
     processor_workers_.push_back(std::make_unique<ProcessWorker>(
-        processor_queue_, writer_queue_, request_datas_, response_datas_));
+        processor_queue_, writer_queue_, router_, request_datas_,
+        response_datas_));
   }
   logger_.Debug("Processor workers created.");
 

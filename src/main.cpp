@@ -39,7 +39,6 @@ int main(int argc, char** argv) {
                                process_workers, write_workers);
 
   while (true) {
-    // TODO User interaction
   }
 
   return 0;

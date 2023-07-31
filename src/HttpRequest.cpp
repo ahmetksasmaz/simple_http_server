@@ -7,7 +7,7 @@ http::HttpRequest::HttpRequest(const methods::Method method,
       request_uri_(request_uri),
       http::HttpMessage::HttpMessage(protocol) {}
 
-http::HttpRequest& http::HttpRequest::Parse(const std::string message) {
+http::HttpRequest* http::HttpRequest::Parse(const std::string message) {
   std::stringstream message_stream(message);
   std::string line;
   std::getline(message_stream, line);
@@ -21,7 +21,7 @@ http::HttpRequest& http::HttpRequest::Parse(const std::string message) {
       protocol == "HTTP/1.1" ? protocols::HTTP_1_1 : protocols::NOT_SUPPORTED;
   method_enum = methods::ParseMethod(method);
 
-  static HttpRequest request(method_enum, uri, protocol_enum);
+  HttpRequest* request = new HttpRequest(method_enum, uri, protocol_enum);
 
   int content_length = 0;
 
@@ -39,7 +39,7 @@ http::HttpRequest& http::HttpRequest::Parse(const std::string message) {
       if (header == headers::CONTENT_LENGTH) {
         content_length = stoi(value);
       }
-      request.headers_.insert(
+      request->headers_.insert(
           std::pair<headers::Header, std::string>(header, value));
     } else {
       // EOF of Content Section Started
@@ -48,7 +48,7 @@ http::HttpRequest& http::HttpRequest::Parse(const std::string message) {
   }
   if (content_length > 0) {
     while (std::getline(message_stream, line)) {
-      request.entity_body_ += line;
+      request->entity_body_ += line;
     }
   }
 
