@@ -12,4 +12,6 @@ target_compile_options(simple_http_server PRIVATE -O3)
 
 target_include_directories(simple_http_server PRIVATE include)
 
+target_link_libraries(simple_http_server PRIVATE pthread)
+
 target_compile_options(simple_http_server PRIVATE -Wall -Wextra)
